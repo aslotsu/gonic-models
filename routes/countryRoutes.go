@@ -5,9 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gonic-models/database"
 	"gonic-models/models"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -56,6 +58,33 @@ func getCountriesHandlerFunc(c *gin.Context) {
 	}
 
 	c.JSON(200, countries)
+}
+
+func geCountriesSortedHandlerFunc(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+	var order = c.DefaultQuery("order", "1")
+	sortOrder, err := strconv.Atoi(order)
+	if err != nil {
+		log.Println("Could not change string value to int", err)
+		return
+	}
+	var countries []models.Country
+	countriesColl := client.Database("world").Collection("countries")
+
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"name", sortOrder}})
+	cursor, err := countriesColl.Find(ctx, bson.D{{}}, findOptions)
+	if err != nil {
+		log.Println("Cannot perform find query", err)
+		return
+	}
+	if err := cursor.All(ctx, &countries); err != nil {
+		log.Println("Could not traverse collection", err)
+		return
+	}
+	c.JSON(200, countries)
+
 }
 
 func getCountryHandlerFunc(c *gin.Context) {
@@ -159,6 +188,11 @@ func AddCountry() gin.HandlerFunc {
 // GetCountries /* Get All Countries*/
 func GetCountries() gin.HandlerFunc {
 	return getCountriesHandlerFunc
+}
+
+// GetCountriesSorted /*Get countries sorted */
+func GetCountriesSorted() gin.HandlerFunc {
+	return geCountriesSortedHandlerFunc
 }
 
 // GetCountry /* Get  Countries By ID*/

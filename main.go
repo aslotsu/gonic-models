@@ -16,6 +16,7 @@ func main() {
 
 	router.POST("/new", routes.AddCountry())
 	router.GET("/all", routes.GetCountries())
+	router.GET("/all/sorted", routes.GetCountriesSorted())
 	router.GET("/all/:id", routes.GetCountry())
 	router.DELETE("/del/:id", routes.DeleteCountry())
 	router.PUT("/repl/:id", routes.ReplaceCountry())
