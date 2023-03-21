@@ -169,9 +169,10 @@ func replaceCountryHandlerFunc(c *gin.Context) {
 	}
 
 	countriesColl := client.Database("world").Collection("countries")
-	updateResult, err := countriesColl.ReplaceOne(ctx, bson.D{{"_id", objectID}}, bson.D{{"name", country.Name},
-		{"age", country.Age}, {"population", country.Population},
-		{"continent", country.Continent}})
+	updateResult, err := countriesColl.ReplaceOne(ctx,
+		bson.D{{"_id", objectID}}, bson.D{{"name", country.Name},
+			{"age", country.Age}, {"population", country.Population},
+			{"continent", country.Continent}})
 	if err != nil {
 		log.Println("Could not perform replace operation", err)
 		return
